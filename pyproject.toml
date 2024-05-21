@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "python_cicd_demo"
+version = "0.1.0"
+description = ""
+authors = ["shima"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+[tool.poetry.group.dev.dependencies]
+pandas = "2.2.2"
+numpy = "1.26.4"
+pre-commit = "3.7.1"
+
+[tool.poetry.group.test.dependencies]
+mockito = "1.5.0"
+pytest = "8.2.0"
