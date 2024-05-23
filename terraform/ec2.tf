@@ -1,14 +1,14 @@
-# configured aws provider with proper credentials
+# configured aws provider with proper credentials information
 provider "aws" {
-  region    = "us-east-1"
+  region = "us-east-1"
 }
 
 
 # create default vpc if one does not exit
 resource "aws_default_vpc" "default_vpc" {
 
-  tags    = {
-    Name  = "default_vpc"
+  tags = {
+    Name = "default_vpc"
   }
 }
 
@@ -21,7 +21,7 @@ data "aws_availability_zones" "available_zones" {}
 resource "aws_default_subnet" "default_az1" {
   availability_zone = data.aws_availability_zones.available_zones.names[0]
 
-  tags   = {
+  tags = {
     Name = "default subnet"
   }
 }
@@ -30,7 +30,7 @@ resource "aws_default_subnet" "default_az1" {
 # create security group for the ec2 instance
 
 variable "ssh_ip" {
-  type    = string
+  type        = string
   description = "Set the ssh ip address"
 }
 
@@ -38,32 +38,32 @@ variable "ssh_ip" {
 resource "aws_security_group" "ec2_security_group" {
   name        = "ec2 security group"
   description = "allow access on ports 80 and 22"
-  vpc_id      =  aws_default_vpc.default_vpc.id
+  vpc_id      = aws_default_vpc.default_vpc.id
 
   ingress {
-    description      = "http access"
-    from_port        = 80
-    to_port          = 80
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
+    description = "http access"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    description      = "ssh access"
-    from_port        = 22
-    to_port          = 22
-    protocol         = "tcp"
-    cidr_blocks      = [var.ssh_ip]
+    description = "ssh access"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [var.ssh_ip]
   }
 
   egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = -1
-    cidr_blocks      = ["0.0.0.0/0"]
+    from_port   = 0
+    to_port     = 0
+    protocol    = -1
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags   = {
+  tags = {
     Name = "ec2 security group"
   }
 }
@@ -90,7 +90,7 @@ data "aws_ami" "amazon_linux_2" {
 resource "aws_instance" "ec2_instance" {
   ami                    = data.aws_ami.amazon_linux_2.id
   instance_type          = "t2.micro"
-  subnet_id              =  aws_default_subnet.default_az1.id
+  subnet_id              = aws_default_subnet.default_az1.id
   vpc_security_group_ids = [aws_security_group.ec2_security_group.id]
   key_name               = "myec2key"
   #user_data              =
