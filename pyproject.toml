@@ -7,13 +7,96 @@ readme = "README.md"
 package-mode = false
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "3.12.3"
+coverage-badge = "1.1.1"
+
 
 [tool.poetry.group.dev.dependencies]
 pandas = "2.2.2"
 numpy = "1.26.4"
 pre-commit = "3.7.1"
+ansible = "9.6.0"
 
 [tool.poetry.group.test.dependencies]
 mockito = "1.5.0"
 pytest = "8.2.0"
+coverage = "7.5.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-s -v --durations=0"
+cache_dir = ".cache/pytest_cache"
+
+[tool.coverage.run]
+branch = true
+source = ["python_iccd_demo"]
+command_line = "-m pytest --junitxml=report.xml"
+
+[tool.coverage.report]
+show_missing = true
+
+[tool.coverage.xml]
+output = "coverage.xml"
+
+
+[tool.ruff]
+target-version = "py312"
+line-length = 90
+src = ["python_iccd_demo", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle
+    "W",    # pycodestyle
+    "F",    # pyflakes
+    "I",    # isort
+    "UP",   # pyupgrade
+    "PGH",  # pygrep-hooks
+    "ANN",  # flake8-annotations
+    "S",    # flake8-bandit
+    "C4",   # flake8-comprehensions rules
+    "A",    # flake8-builtins
+    "PTH",  # flake8-use-pathlib (over os)
+    "COM",  # flake8-commas
+    "ICN",  # flake8-import-conventions
+    "T20",  # flake8-print
+    "SIM",  # flake8-simplify
+    "B",    # flake8-boolean-trap
+#    "DTZ",  # flake8-datetimez
+    "T10",  # flake8-debugger
+    "RET",  # flake8-return
+    "FA",   # flake8-future-annotations
+    "ISC",  # flake8-implicit-str-concat
+    "PIE",  # flake8-pie
+    "PYI",  # flake8-pyi
+    "RSE",  # flake8-raise
+    "PD",   # pandas
+    "NPY",  # numpy
+    "C90",  # mccabe
+    "ERA",  # eradicate (removes commented-out code from Python files)
+    "D",    # pydocstyle
+    "N",    # pep8-naming
+    "PL",   # Pylint
+    "FLY",  # flynt
+    "PERF", # Perflint
+
+    # Cherry-pick Ruff-specific rules
+    "RUF005",   # collection-literal-concatenation
+    "RUF010",   # explicit-f-string-type-conversion
+    "RUF015",   # unnecessary-iterable-allocation-for-first-element
+    "RUF100",   # unused-noqa
+    "Q004",     # flake8-quotes (Only rule compatible with formatter)
+    "TID252",   # relative-imports
+]
+
+extend-ignore = [
+    "ANN10",    # Ignore missing type annotation for self & cls in methods
+    "D10",      # Missing docstring
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["python_iccd_demo"]

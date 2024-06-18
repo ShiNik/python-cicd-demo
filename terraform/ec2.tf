@@ -28,12 +28,10 @@ resource "aws_default_subnet" "default_az1" {
 
 
 # create security group for the ec2 instance
-
-variable "ssh_ip" {
-  type        = string
-  description = "Set the ssh ip address"
+resource "aws_key_pair" "deployer" {
+  key_name   = "deployer-key"
+  public_key = var.ssh_public_key
 }
-
 
 resource "aws_security_group" "ec2_security_group" {
   name        = "ec2 security group"
@@ -69,39 +67,59 @@ resource "aws_security_group" "ec2_security_group" {
 }
 
 
-# use data source to get a registered amazon linux 2 ami
-data "aws_ami" "amazon_linux_2" {
-  most_recent = true
-  owners      = ["amazon"]
+# use data source to get a registered amazon ubuntu ami
+data "aws_ami" "ubuntu" {
 
-  filter {
-    name   = "owner-alias"
-    values = ["amazon"]
-  }
+  most_recent = true
 
   filter {
     name   = "name"
-    values = ["amzn2-ami-hvm*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
   }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"]
 }
+
+
 
 
 # launch the ec2 instance and install website
 resource "aws_instance" "ec2_instance" {
-  ami                    = data.aws_ami.amazon_linux_2.id
+  ami                    = data.aws_ami.ubuntu.id
   instance_type          = "t2.micro"
   subnet_id              = aws_default_subnet.default_az1.id
   vpc_security_group_ids = [aws_security_group.ec2_security_group.id]
-  key_name               = "myec2key"
-  #user_data              =
+  key_name               = aws_key_pair.deployer.key_name
 
   tags = {
     Name = "cicd server"
   }
-}
+
+  depends_on = [
+    aws_key_pair.deployer
+
+  ]
+
+  #   provisioner "remote-exec" {
+  #     inline = ["echo 'Wait until SSH is ready'"]
+
+  #     connection {
+  #       type        = "ssh"
+  #       user        = local.ssh_user
+  #       private_key = file(local.private_key_path)
+  #       host        = aws_instance.nginx.public_ip
+  #     }
+  #   }
+  #   provisioner "local-exec" {
+  #     command = "ansible-playbook  -i ${aws_instance.nginx.public_ip}, --private-key ${local.private_key_path} nginx.yaml"
+  #   }
+  # }
 
 
-# print the ec2's public ipv4 address
-output "public_ipv4_address" {
-  value = aws_instance.ec2_instance.public_ip
+
 }
